@@ -17,6 +17,7 @@ Sensors can be:
 - humidity (H, RH in %)
 - door (open, close)
 - dispenser (idle, dispensing)
+
 There can be more than one temperature or humidity sensor in each cellar, but only one door sensor and one dispenser.
 Each cellar can have zero or more lights. If present they are indicated with L1 to Ln. (on, off)
 Each cellar can have zero or more cameras. If present they are indicated with C1 to Cn. (inside view, door view)
