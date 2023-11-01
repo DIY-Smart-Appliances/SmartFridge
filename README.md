@@ -39,13 +39,25 @@ Each cellar can have zero or more lights. If present they are indicated with L1 
 
 Each cellar can have zero or more cameras. If present they are indicated with C1 to Cn. (inside view, door view)
 
-
 Each cellar can have one actuator to start the cooling in the cellar. Each actuator has an associated compressor and sometimes an air valve. 
 
-At least one cooling actuator **must** be present. Fridges with a freezer compartment might not have a cooling actuator specific for the freezer. They are built so that inside the freezer compartment the temperature is below zero (C) even when the rest of the fridge is at the upper limit of the temperature regulation (no more than 8°C). Some small fridges, especially under counter models or those for camper vans and trailers, are realised in this way.
+At least one cooling actuator **must** be present. Fridges with a freezer compartment might not have a cooling actuator specific to the freezer. They are designed and built so that inside the freezer compartment the temperature is below zero (C) even when the rest of the fridge is at the upper limit of the temperature regulation (no more than 8°C). Some small fridges, especially under counter models or those for camper vans and trailers, are realized in this way.
 
 The actuator is on or off, and it turns on the associated compressor and, if present, the air valve. This setup works with systems with one compressor for the fridge and one for the freezer (combined compressor) and with separate compressors for each function.
 
 It is indicated with an A.
 
 Each cellar can have an actuator for a fan. It is indicated with an F.
+
+## HMI
+The fridge can have an interface. It can be used to simply display status or to set operating parameters.
+
+For this project we will consider five interfaces.
+
+- Simple RGB LED.
+- Matrix display
+  - with buttons
+- LED display
+  - with buttons
+- LED touch screen
+
