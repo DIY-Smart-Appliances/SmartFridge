@@ -50,14 +50,14 @@ It is indicated with an A.
 Each cellar can have an actuator for a fan. It is indicated with an F.
 
 ## HMI
-The fridge can have an interface. It can be used to simply display status or to set operating parameters.
+The fridge can have an interface. It can be used to simply display status or to set operating parameters. The presence of an HMI is indicated in the door components as H, the number of the HMI type and a + if it has buttons.
 
 For this project we will consider five interfaces.
 
-- Simple RGB LED.
-- Matrix display
+1. Simple RGB LED.
+2. Matrix display
   - with buttons
-- LED display
+3. LED display
   - with buttons
-- LED touch screen
+4. LED touch screen
 
