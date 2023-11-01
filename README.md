@@ -12,7 +12,9 @@ The model is that a fridge has doors, as you see them from left to right, with a
 
 Each door closes a "cellar".
 
-Templates are made by starting with the upper left door, followed by the list of its cellar components enclosed in 
+Templates are made by starting with the upper left door, followed by the list of its cellar components enclosed in [].
+
+For
 
 ### Doors
 
@@ -39,6 +41,8 @@ Each cellar can have zero or more cameras. If present they are indicated with C1
 
 
 Each cellar can have one actuator to start the cooling in the cellar. Each actuator has an associated compressor and sometimes an air valve.
+
+At least one cooling actuator must be present. Fridges with a freezer compartment might not have a cooling actuator specific for the freezer. They are built so that inside the temperature is below zero (C) even with the rest of the fridge is at the upper limit of the temperature regulation (no more than 8°C)
 
 The actuator is on or off, and it turns on the associated compressor and, if present, the air valve. This setup works with systems with one compressor for the fridge and one for the freezer (combined compressor) and with separate compressors for each function.
 
