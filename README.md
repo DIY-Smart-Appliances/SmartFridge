@@ -12,7 +12,7 @@ The model is that a fridge has doors, as you see them from left to right, with a
 
 Each door closes a "cellar".
 
-Templates are made by starting with the upper left door, followed by the list of its cellar components enclosed in [].
+Templates are made by starting with the upper left door, followed by the list of its cellar components enclosed in [ ].
 
 For easier parsing doors are separated by a comma, and the same applies for cellar components.
 
