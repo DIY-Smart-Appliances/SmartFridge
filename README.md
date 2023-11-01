@@ -12,6 +12,8 @@ The model is that a fridge has doors, as you see them from left to right, with a
 
 Each door closes a "cellar".
 
+Templates are made by starting with the upper left door, followed by the list of its cellar components enclosed in 
+
 ### Doors
 
 A fridge door is indicated with an uppercase D, and a freezer door with a lowercase d.
@@ -24,10 +26,10 @@ A lowercase i after the letter indicates an ice dispenser.
 A fridge can have sensors, lights, cameras, and actuators serving each cellar.
 
 Sensors can be:
-- temperature (T, C or F)
-- humidity (H, RH in %)
-- door (open, close)
-- dispenser (idle, dispensing)
+- temperature (Symbol T, data type degrees in C or F)
+- humidity (Symbol H, data type RH in %)
+- door (Symbol D, binary state: open, close)
+- dispenser (Symbol d, binary state: idle, dispensing)
 
 There can be more than one temperature or humidity sensor in each cellar, but only one door sensor and one dispenser.
 
@@ -38,6 +40,6 @@ Each cellar can have zero or more cameras. If present they are indicated with C1
 
 Each cellar can have one actuator to start the cooling in the cellar. Each actuator has an associated compressor and sometimes an air valve.
 
-The actuator is on or off, and it turns on the associated compressor and, if present, the air valve. This setup works with systems with one compressor for fridge and freezer (combined compressor) and with separate compressors for each function.
+The actuator is on or off, and it turns on the associated compressor and, if present, the air valve. This setup works with systems with one compressor for the fridge and one for the freezer (combined compressor) and with separate compressors for each function.
 
 Each cellar can have an actuator for a fan.
