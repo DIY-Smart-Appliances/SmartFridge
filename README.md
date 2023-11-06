@@ -58,7 +58,7 @@ It is indicated with an A. If there is more than one compressor it will be indic
 Each cellar can have an actuator for a fan. It is indicated with an F.
 
 ## HMI
-The fridge can have an interface. It can be used to simply display status or to set operating parameters. The presence of an HMI is indicated with an H after the D or d, the number of the HMI type and a + if it has buttons.
+The fridge can have an interface to display status or to set operating parameters. The presence of an HMI is indicated with an H after the D or d, the number of the HMI type and a + if it has buttons.
 
 For this project we will consider five interfaces.
 
