@@ -63,7 +63,7 @@ The fridge can have an interface to display status or to set operating parameter
 For this project we will consider five interfaces.
 
 1. Simple RGB LED.
-2. Matrix display
+2. LCD Matrix display
   - with buttons
 3. LED display
   - with buttons
