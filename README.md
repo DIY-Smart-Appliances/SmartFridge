@@ -45,7 +45,7 @@ There can be more than one temperature or humidity sensor in each cellar, but on
 
 Each cellar can have zero or more lights. If present they are indicated with L1 to Ln. (on, off). A simple light might be indicate with only the L instead of L1.
 
-Each cellar can have zero or more cameras. If present they are indicated with C1 to Cn. (inside view, door view)
+Each cellar can have zero or more cameras. If present they are indicated with C1 to Cn. (inside view, door view), A simple light might be indicate with only the C instead of C1.
 
 Each cellar can have one actuator to start the cooling in the cellar. Each actuator has an associated compressor and sometimes an air valve. 
 
@@ -63,7 +63,7 @@ The fridge can have an interface to display status or to set operating parameter
 For this project we will consider five interfaces.
 
 1. Simple RGB LED.
-2. Matrix display
+2. LCD Matrix display
   - with buttons
 3. LED display
   - with buttons
