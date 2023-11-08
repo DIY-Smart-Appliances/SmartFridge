@@ -13,4 +13,4 @@ The modifications are:
 - connect a DHT22 inside the freezer to the ESP32Cam - For this you can use the path to the old temperature sensor
 - connect the compressor relay to the ESP32Cam
 
-Since in most freezer compartments there is no door opening sensor because there is no light, the door opening sensor has to be fitted-in somehow. The cables can follow the same path as the temperature sensor, but then it will be necessary to make some modifications to the freezer door to fit a reed relay.
+Since in most freezer compartments there is no door opening sensor because there is no light, the door opening sensor has to be fitted-in somehow. The cables can follow the same path as the temperature sensor, but it will probably be necessary to make some modifications to the freezer door to fit a reed relay.
