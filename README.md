@@ -1,5 +1,5 @@
 # SmartFridge
-Software for a smart fridge based on ESP32 boards and ESPHOME software.
+Software for smart fridges based on ESP32 boards and ESPHOME software.
 
 To "describe" a fridge there are "fridge templates" describing their physical components, like doors, compressors, sensors, and lights, in an abstract way.
 
