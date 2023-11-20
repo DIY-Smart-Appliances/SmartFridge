@@ -1,0 +1,26 @@
+substitutions:
+name: Fridge
+esphome:
+    name: ${name}
+    comment: Main Fridge
+
+esp32:
+    board: esp32cam
+    framework:
+      type: esp-idf
+      version: recommended
+wifi:
+  ssid: !secret esphome_wifi_ssid
+  password: !secret esphome_wifi_password
+
+logger:
+
+api:
+  reboot_timeout: 15min
+
+ota:
+  password: !secret esphome_ota_password
+
+time:
+  - platform: homeassistant
+    id: system_time
