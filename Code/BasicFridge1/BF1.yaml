@@ -24,3 +24,13 @@ ota:
 time:
   - platform: homeassistant
     id: system_time
+# I2C BUS for Matrix display
+i2c:
+  sda: GPIO16
+  scl: GPIO0
+
+display:
+  - platform: lcd_pcf8574
+    dimensions: 20x4
+    address: 0x27
+    
