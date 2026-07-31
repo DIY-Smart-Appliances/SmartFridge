@@ -3,7 +3,7 @@ substitutions:
 
 esphome:
   name: ${name}
-  comment: "BF1 Template: Dallas + SHT41"
+  comment: "BF1 Template: Dual compressor, Dallas + SHT41, camera, HMI type 2 (no buttons), power metering, HA/internal logic"
   min_version: 2024.6.0
 
 esp32:
@@ -26,7 +26,7 @@ captive_portal:
 logger:
 
 # -------------------------------------------------------
-#  API protetta
+#  API protected
 # -------------------------------------------------------
 api:
   encryption:
@@ -34,7 +34,7 @@ api:
   reboot_timeout: 15min
 
 # -------------------------------------------------------
-#  OTA protetto
+#  OTA protected
 # -------------------------------------------------------
 ota:
   password: !secret esphome_ota_password
@@ -58,7 +58,7 @@ dallas:
   pin: GPIO13
 
 # -------------------------------------------------------
-#  DISPLAY
+#  DISPLAY (HMI type 2, no buttons)
 # -------------------------------------------------------
 display:
   - platform: lcd_pcf8574
@@ -69,51 +69,94 @@ display:
       it.print(0, 0, "Fridge BF1");
       it.printf(0, 1, "Fridge T: %.1fC", id(fridge_temp).state);
       it.printf(0, 2, "Freezer T: %.1fC", id(freezer_temp).state);
-      it.printf(0, 3, "Door: %s", id(fridge_door).state ? "OPEN" : "CLOSED");
+      it.printf(0, 3, "Mode: %s", id(compressor_mode).state.c_str());
 
 # -------------------------------------------------------
-#  TEMPERATURE SENSORS (Dallas, ROM-based)
-#  Inserisci qui gli address reali
+#  CAMERA (C in fridge cellar)
+# -------------------------------------------------------
+esp32_camera:
+  name: "Fridge Camera"
+  external_clock:
+    pin: GPIO0
+    frequency: 20MHz
+  data_pins: [GPIO5, GPIO18, GPIO19, GPIO21, GPIO36, GPIO39, GPIO34, GPIO35]
+  vsync_pin: GPIO25
+  href_pin: GPIO23
+  pixel_clock_pin: GPIO22
+  resolution: 640x480
+  jpeg_quality: 10
+
+# -------------------------------------------------------
+#  SENSORS: Temperature + Humidity + Power
 # -------------------------------------------------------
 sensor:
+  # Fridge temperature (Dallas)
   - platform: dallas
     address: 0x28FF4C916317032C
     id: fridge_temp
     name: "Fridge Temperature"
 
+  # Freezer temperature (Dallas)
   - platform: dallas
     address: 0x28FFB2A1C41703D1
     id: freezer_temp
     name: "Freezer Temperature"
 
-# -------------------------------------------------------
-#  HUMIDITY SENSORS (SHT41)
-# -------------------------------------------------------
+  # Fridge humidity (SHT41)
   - platform: sht4x
     id: fridge_humidity
-    name: "Fridge Humidity"
     temperature:
       name: "Fridge Humidity Temperature"
     humidity:
       name: "Fridge Relative Humidity"
 
+  # Freezer humidity (SHT41)
   - platform: sht4x
     id: freezer_humidity
-    name: "Freezer Humidity"
     temperature:
       name: "Freezer Humidity Temperature"
     humidity:
       name: "Freezer Relative Humidity"
 
+  # Power metering – Fridge compressor (HLW8012)
+  - platform: hlw8012
+    sel_pin: GPIO26
+    cf_pin: GPIO27
+    cf1_pin: GPIO14
+    current:
+      name: "Fridge Compressor Current"
+    voltage:
+      name: "Fridge Compressor Voltage"
+    power:
+      name: "Fridge Compressor Power"
+    energy:
+      name: "Fridge Compressor Energy"
+    update_interval: 5s
+
+  # Power metering – Freezer compressor (HLW8012)
+  - platform: hlw8012
+    sel_pin: GPIO32
+    cf_pin: GPIO33
+    cf1_pin: GPIO15
+    current:
+      name: "Freezer Compressor Current"
+    voltage:
+      name: "Freezer Compressor Voltage"
+    power:
+      name: "Freezer Compressor Power"
+    energy:
+      name: "Freezer Compressor Energy"
+    update_interval: 5s
+
 # -------------------------------------------------------
-#  DOOR SENSORS
+#  DOOR & DISPENSER SENSORS + HA STATUS
 # -------------------------------------------------------
 binary_sensor:
   - platform: gpio
     id: fridge_door
     name: "Fridge Door"
     pin:
-      number: GPIO14
+      number: GPIO4
       mode: INPUT_PULLUP
       inverted: true
 
@@ -121,32 +164,30 @@ binary_sensor:
     id: freezer_door
     name: "Freezer Door"
     pin:
-      number: GPIO15
+      number: GPIO12
       mode: INPUT_PULLUP
       inverted: true
 
-# -------------------------------------------------------
-#  DISPENSER SENSOR
-# -------------------------------------------------------
   - platform: gpio
     id: fridge_dispenser
     name: "Fridge Dispenser"
     pin:
-      number: GPIO32
+      number: GPIO17
       mode: INPUT_PULLUP
       inverted: true
 
+  # HA API status (for fallback)
+  - platform: status
+    id: ha_status
+    name: "HA API Status"
+
 # -------------------------------------------------------
-#  LIGHTS
+#  LIGHTS (L only in fridge cellar)
 # -------------------------------------------------------
 output:
   - platform: gpio
     id: fridge_light_output
-    pin: GPIO4
-
-  - platform: gpio
-    id: freezer_light_output
-    pin: GPIO12
+    pin: GPIO2
 
 light:
   - platform: binary
@@ -154,29 +195,148 @@ light:
     name: "Fridge Light"
     output: fridge_light_output
 
-  - platform: binary
-    id: freezer_light
-    name: "Freezer Light"
-    output: freezer_light_output
-
 # -------------------------------------------------------
-#  COOLING ACTUATORS
+#  ACTUATORS: Dual compressors (A1/A2)
 # -------------------------------------------------------
 switch:
+  # Physical relays – compressors
   - platform: gpio
-    id: fridge_cooling
-    name: "Fridge Cooling Actuator"
-    pin: GPIO2
+    id: fridge_compressor_relay
+    name: "Fridge Compressor Relay"
+    pin: GPIO19
 
   - platform: gpio
-    id: freezer_cooling
-    name: "Freezer Cooling Actuator"
-    pin: GPIO33
+    id: freezer_compressor_relay
+    name: "Freezer Compressor Relay"
+    pin: GPIO21
+
+  # HA-exposed compressor control switches
+  - platform: template
+    id: fridge_compressor_control
+    name: "Fridge Compressor Control (HA)"
+    turn_on_action:
+      - switch.turn_on: fridge_compressor_relay
+    turn_off_action:
+      - switch.turn_off: fridge_compressor_relay
+
+  - platform: template
+    id: freezer_compressor_control
+    name: "Freezer Compressor Control (HA)"
+    turn_on_action:
+      - switch.turn_on: freezer_compressor_relay
+    turn_off_action:
+      - switch.turn_off: freezer_compressor_relay
 
 # -------------------------------------------------------
-#  FAN (optional)
+#  MODE SELECTION: HA vs Internal Logic
 # -------------------------------------------------------
-  - platform: gpio
-    id: fridge_fan
-    name: "Fridge Fan"
-    pin: GPIO17
+select:
+  - platform: template
+    id: compressor_mode
+    name: "Compressor Control Mode"
+    optimistic: true
+    options:
+      - "Home Assistant"
+      - "Internal Logic"
+    initial_option: "Internal Logic"
+
+# -------------------------------------------------------
+#  GLOBALS: Setpoints, hysteresis, lockouts
+# -------------------------------------------------------
+globals:
+  # Fridge thermostat
+  - id: fridge_setpoint
+    type: float
+    initial_value: 4.0
+  - id: fridge_hysteresis
+    type: float
+    initial_value: 1.0
+
+  # Freezer thermostat
+  - id: freezer_setpoint
+    type: float
+    initial_value: -18.0
+  - id: freezer_hysteresis
+    type: float
+    initial_value: 2.0
+
+  # Minimum off-time lockouts (seconds)
+  - id: fridge_min_off_time
+    type: int
+    initial_value: 300    # 5 minutes
+  - id: freezer_min_off_time
+    type: int
+    initial_value: 300    # 5 minutes
+
+  # Lockout flags
+  - id: fridge_lockout
+    type: bool
+    initial_value: false
+  - id: freezer_lockout
+    type: bool
+    initial_value: false
+
+# -------------------------------------------------------
+#  SCRIPTS: Lockout timers
+# -------------------------------------------------------
+script:
+  # Fridge compressor minimum off-time
+  - id: fridge_off_lockout
+    mode: restart
+    then:
+      - lambda: |-
+          id(fridge_lockout) = true;
+      - delay: !lambda "return id(fridge_min_off_time) * 1000;"
+      - lambda: |-
+          id(fridge_lockout) = false;
+
+  # Freezer compressor minimum off-time
+  - id: freezer_off_lockout
+    mode: restart
+    then:
+      - lambda: |-
+          id(freezer_lockout) = true;
+      - delay: !lambda "return id(freezer_min_off_time) * 1000;"
+      - lambda: |-
+          id(freezer_lockout) = false;
+
+# -------------------------------------------------------
+#  INTERNAL LOGIC: Dual thermostats + HA fallback
+# -------------------------------------------------------
+interval:
+  - interval: 30s
+    then:
+      - lambda: |-
+          const bool ha_connected = id(ha_status).state;
+          const bool internal_mode = id(compressor_mode).state == "Internal Logic";
+
+          // Internal logic active if:
+          // - mode = Internal Logic OR
+          // - HA not connected
+          const bool use_internal = internal_mode || !ha_connected;
+
+          if (use_internal) {
+            // -----------------------------
+            // Fridge thermostat with lockout
+            // -----------------------------
+            if (!id(fridge_lockout)) {
+              if (id(fridge_temp).state > id(fridge_setpoint) + id(fridge_hysteresis)) {
+                id(fridge_compressor_relay).turn_on();
+              } else if (id(fridge_temp).state < id(fridge_setpoint) - id(fridge_hysteresis)) {
+                id(fridge_compressor_relay).turn_off();
+                id(fridge_off_lockout).execute();
+              }
+            }
+
+            // -----------------------------
+            // Freezer thermostat with lockout
+            // -----------------------------
+            if (!id(freezer_lockout)) {
+              if (id(freezer_temp).state > id(freezer_setpoint) + id(freezer_hysteresis)) {
+                id(freezer_compressor_relay).turn_on();
+              } else if (id(freezer_temp).state < id(freezer_setpoint) - id(freezer_hysteresis)) {
+                id(freezer_compressor_relay).turn_off();
+                id(freezer_off_lockout).execute();
+              }
+            }
+          }
