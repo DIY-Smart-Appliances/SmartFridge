@@ -1,36 +1,182 @@
 substitutions:
-name: Fridge
+  name: fridge_bf1
+
 esphome:
-    name: ${name}
-    comment: Main Fridge
+  name: ${name}
+  comment: "BF1 Template: Dallas + SHT41"
+  min_version: 2024.6.0
 
 esp32:
-    board: esp32cam
-    framework:
-      type: arduino
-      version: recommended
+  board: esp32cam
+  framework:
+    type: arduino
+
+# -------------------------------------------------------
+#  Wi-Fi provisioning via Improv BLE + fallback AP
+# -------------------------------------------------------
 wifi:
-  ssid: !secret esphome_wifi_ssid
-  password: !secret esphome_wifi_password
+  ap:
+    ssid: "${name}_setup"
+    password: "fridge1234"
+
+improv_serial:
+improv_ble:
+captive_portal:
 
 logger:
 
+# -------------------------------------------------------
+#  API protetta
+# -------------------------------------------------------
 api:
+  encryption:
+    key: !secret esphome_api_key
   reboot_timeout: 15min
 
+# -------------------------------------------------------
+#  OTA protetto
+# -------------------------------------------------------
 ota:
   password: !secret esphome_ota_password
 
 time:
   - platform: homeassistant
     id: system_time
-# I2C BUS for Matrix display
+
+# -------------------------------------------------------
+#  I2C BUS (LCD + SHT41)
+# -------------------------------------------------------
 i2c:
   sda: GPIO16
   scl: GPIO0
+  scan: true
 
+# -------------------------------------------------------
+#  Dallas 1-Wire bus (temperature)
+# -------------------------------------------------------
+dallas:
+  pin: GPIO13
+
+# -------------------------------------------------------
+#  DISPLAY
+# -------------------------------------------------------
 display:
   - platform: lcd_pcf8574
+    id: main_display
     dimensions: 20x4
     address: 0x27
-    
+    lambda: |-
+      it.print(0, 0, "Fridge BF1");
+      it.printf(0, 1, "Fridge T: %.1fC", id(fridge_temp).state);
+      it.printf(0, 2, "Freezer T: %.1fC", id(freezer_temp).state);
+      it.printf(0, 3, "Door: %s", id(fridge_door).state ? "OPEN" : "CLOSED");
+
+# -------------------------------------------------------
+#  TEMPERATURE SENSORS (Dallas, ROM-based)
+#  Inserisci qui gli address reali
+# -------------------------------------------------------
+sensor:
+  - platform: dallas
+    address: 0x28FF4C916317032C
+    id: fridge_temp
+    name: "Fridge Temperature"
+
+  - platform: dallas
+    address: 0x28FFB2A1C41703D1
+    id: freezer_temp
+    name: "Freezer Temperature"
+
+# -------------------------------------------------------
+#  HUMIDITY SENSORS (SHT41)
+# -------------------------------------------------------
+  - platform: sht4x
+    id: fridge_humidity
+    name: "Fridge Humidity"
+    temperature:
+      name: "Fridge Humidity Temperature"
+    humidity:
+      name: "Fridge Relative Humidity"
+
+  - platform: sht4x
+    id: freezer_humidity
+    name: "Freezer Humidity"
+    temperature:
+      name: "Freezer Humidity Temperature"
+    humidity:
+      name: "Freezer Relative Humidity"
+
+# -------------------------------------------------------
+#  DOOR SENSORS
+# -------------------------------------------------------
+binary_sensor:
+  - platform: gpio
+    id: fridge_door
+    name: "Fridge Door"
+    pin:
+      number: GPIO14
+      mode: INPUT_PULLUP
+      inverted: true
+
+  - platform: gpio
+    id: freezer_door
+    name: "Freezer Door"
+    pin:
+      number: GPIO15
+      mode: INPUT_PULLUP
+      inverted: true
+
+# -------------------------------------------------------
+#  DISPENSER SENSOR
+# -------------------------------------------------------
+  - platform: gpio
+    id: fridge_dispenser
+    name: "Fridge Dispenser"
+    pin:
+      number: GPIO32
+      mode: INPUT_PULLUP
+      inverted: true
+
+# -------------------------------------------------------
+#  LIGHTS
+# -------------------------------------------------------
+output:
+  - platform: gpio
+    id: fridge_light_output
+    pin: GPIO4
+
+  - platform: gpio
+    id: freezer_light_output
+    pin: GPIO12
+
+light:
+  - platform: binary
+    id: fridge_light
+    name: "Fridge Light"
+    output: fridge_light_output
+
+  - platform: binary
+    id: freezer_light
+    name: "Freezer Light"
+    output: freezer_light_output
+
+# -------------------------------------------------------
+#  COOLING ACTUATORS
+# -------------------------------------------------------
+switch:
+  - platform: gpio
+    id: fridge_cooling
+    name: "Fridge Cooling Actuator"
+    pin: GPIO2
+
+  - platform: gpio
+    id: freezer_cooling
+    name: "Freezer Cooling Actuator"
+    pin: GPIO33
+
+# -------------------------------------------------------
+#  FAN (optional)
+# -------------------------------------------------------
+  - platform: gpio
+    id: fridge_fan
+    name: "Fridge Fan"
+    pin: GPIO17
