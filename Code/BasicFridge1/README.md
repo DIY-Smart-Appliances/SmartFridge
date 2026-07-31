@@ -67,5 +67,12 @@ Since in most freezer compartments there is no door opening sensor because there
 For the relays, you could also use a 3/4 relay module instead of one module per relay.
 
 ## Tools
-A Dremel or something similar can come in handy.
-Some water-repellent spray can also be useful. The main problem for fridges and freezers is the presence of water vapor in the cellar. For the ESP32-CAM and its power supply, probably the best choice is to put them in a box, with a hole for the camera. For the display, you will usually have to cut the fridge door, find a way to fit it in, and mask the cuts with a frame. It must also be close to the ESP32 and the SHT41, since the I2C bus must be short. If too difficult, avoid the display. After all, you see everything with HA.
+You need some DIY prowess to complete such a transformation of your fridge.
+All usual tool will be needed. Plus:
+- A Dremel or something similar can come in handy.
+- A soldering station
+- Heat shrink tubing
+- Some water-repellent spray can also be useful.
+- Maybe a 3D printer for module casing 
+
+The main problem for fridges and freezers is the presence of water vapor in the cellar. For the ESP32-CAM and its power supply, probably the best choice is to put them in a box, with a hole for the camera. For the display, you will usually have to cut the fridge door, find a way to fit it in, and mask the cuts with a frame. It must also be close to the ESP32 and the SHT41, since the I2C bus must be short. If too difficult, avoid the display. After all, you see everything with HA.
