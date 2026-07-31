@@ -66,11 +66,24 @@ display:
     dimensions: 20x4
     address: 0x27
     lambda: |-
-      it.print(0, 0, "Fridge BF1");
-      it.printf(0, 1, "Fridge T: %.1fC", id(fridge_temp).state);
-      it.printf(0, 2, "Freezer T: %.1fC", id(freezer_temp).state);
-      it.printf(0, 3, "Mode: %s", id(compressor_mode).state.c_str());
+      // Riga 1: Temperature
+      it.printf(0, 0, "Fridge: %.1fC  Freez: %.1fC",
+                id(fridge_temp).state,
+                id(freezer_temp).state);
 
+      // Riga 2: Umidità
+      it.printf(0, 1, "Hum F: %.0f%%  Hum Z: %.0f%%",
+                id(fridge_humidity).state,
+                id(freezer_humidity).state);
+
+      // Riga 3: Consumo istantaneo (W)
+      it.printf(0, 2, "P F: %.0fW  P Z: %.0fW",
+                id(fridge_compressor_power).state,
+                id(freezer_compressor_power).state);
+
+      // Riga 4: Modalità operativa
+      it.printf(0, 3, "Mode: %s",
+                id(compressor_mode).state.c_str());
 # -------------------------------------------------------
 #  CAMERA (C in fridge cellar)
 # -------------------------------------------------------
