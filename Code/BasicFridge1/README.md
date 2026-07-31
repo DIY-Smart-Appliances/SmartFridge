@@ -2,7 +2,7 @@
 
 This code is for a standard fridge with a fridge section above and a freezer section below, each with its own compressors, modified to become a smart fridge with an ESP32Cam.
 It also adds a display. Here is the hardware used to smartify the fridge:
-## Features Implemented
+## Hardware
 ### Sensors
 - Dallas DS18B20 temperature sensors (fridge + freezer)
 - SHT41 humidity sensors (fridge + freezer)
@@ -53,7 +53,7 @@ The modifications are:
 
 Since in most freezer compartments there is no door opening sensor because there is no light, the door opening sensor has to be fitted in somehow. The cables can follow the same path as the temperature sensor, but it will probably be necessary to make some modifications to the freezer door to fit a reed relay.
 
-## Hardware
+## Product list
 - ESP32‑CAM
 - 220VAC to 5VDC power module
 - 2× Dallas DS18B20
