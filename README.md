@@ -110,24 +110,26 @@ The fridge can have an interface to display status or to set operating parameter
 
 - Presence of an HMI is indicated with an `H` after the `D` or `d`.
 - The number after `H` indicates the HMI type (see below).
-- A `+` after the number indicates the presence of buttons.
+- **Important:** A `+` after the number indicates the presence of buttons. If there is no `+`, the HMI has **no buttons**.
 
 ### HMI Types
 
 | Number | Type |
 |--------|------|
-| 1 | Simple RGB LED |
+| 1 | Simple RGB LED (no buttons) |
 | 2 | LCD Matrix display with buttons |
 | 3 | LED or OLED display with buttons |
-| 4 | LED or OLED touch screen |
+| 4 | LED or OLED touch screen (buttons not applicable) |
 
 ### HMI Examples
 
 | Description | Template |
 |-------------|----------|
-| Fridge door with HMI type 4 (touch screen) | `DH4[...]` |
-| Freezer door with HMI type 3 (OLED + buttons) | `dH3[...]` |
+| Fridge door with HMI type 4 (touch screen, no separate buttons) | `DH4[...]` |
 | Fridge door with HMI type 2 (LCD + buttons) | `DH2+[...]` |
+| Freezer door with HMI type 3 (OLED + buttons) | `dH3+[...]` |
+| Freezer door with HMI type 3 (OLED, no buttons — just display) | `dH3[...]` |
+| Fridge door with simple RGB LED (type 1, no buttons) | `DH1[...]` |
 
 ---
 
