@@ -5,67 +5,161 @@ To "describe" a fridge there are "fridge templates" describing their physical co
 
 The code will be written in modules corresponding to different fridge templates.
 
-## Templates
+# Fridge Template Description
+
+## Overview
 Templates are used to describe how a fridge is physically made.
 
-The model is that a fridge has doors, as you see them from left to right, with a / to separate door groups from top to bottom.
+The model is that a fridge has doors, as you see them from left to right, with a `/` to separate door groups from top to bottom.
 
 Each door closes a "cellar".
 
-Templates are made by starting with the upper left door, followed by the list of its cellar components enclosed in [ ].
+Templates are made by starting with the upper left door, followed by the list of its cellar components enclosed in `[ ]`.
 
 For easier parsing doors are separated by a comma, and the same applies for cellar components.
 
-For example a simple fridge with a freezer compartment the template will be: D(d)[T,D,L,A]
+---
 
-A common fridge with a freezer in the lower part will be D[T,H,D,L,A]/d[T,H,D,L,A].
+## Examples
 
-A more complex fridge with two upper doors, one with an ice dispenser and the other with a touch screen display. D[T,H,D,d,A,C],DH4[T,H,D,A,C1,C2]/d[T,H,D,A]
+A simple fridge with a freezer compartment:  
+`D(d)[T,D,L,A]`
 
-More detailed description for each component follows.
+A common fridge with a freezer in the lower part:  
+`D[T,H,D,L,A]/d[T,H,D,L,A]`
 
-### Doors
+A more complex fridge with two upper doors, one with an ice dispenser and the other with a touch screen display:  
+`D[T,H,D,d,A,C],DH4[T,H,D,A,C1,C2]/d[T,H,D,A]`
 
-A fridge door is indicated with an uppercase D, and a freezer door with a lowercase d.
+---
 
-If the letter is enclosed in parenthesis (), it indicates that the door is behind the previous door. This happens with freezer compartments in small fridges.
-A lowercase i after the letter indicates an ice dispenser.
+## Doors
 
-### Sensors, lights, cameras and actuators
+- A fridge door is indicated with an uppercase `D`.
+- A freezer door is indicated with a lowercase `d`.
+- If the letter is enclosed in parentheses `()`, it indicates that the door is behind the previous door (e.g., a small freezer compartment inside a fridge).
+- A lowercase `i` after the letter indicates an ice dispenser (e.g., `Di` or `di`).
+
+---
+
+## Sensors, Lights, Cameras, and Actuators
 
 A fridge can have sensors, lights, cameras, and actuators serving each cellar.
 
-Sensors can be:
-- temperature (Symbol T, data type degrees in C or F)
-- humidity (Symbol H, data type RH in %)
-- door (Symbol D, binary state: open, close)
-- dispenser (Symbol d, binary state: idle, dispensing)
+### Sensors
 
-There can be more than one temperature or humidity sensor in each cellar, but only one door sensor and one dispenser.
+| Symbol | Meaning | Data Type |
+|--------|---------|-----------|
+| `T`    | Temperature | Degrees C or F |
+| `H`    | Humidity   | RH in % |
+| `D`    | Door state | binary (open/close) |
+| `d`    | Dispenser state | binary (idle/dispensing) |
 
-Each cellar can have zero or more lights. If present they are indicated with L1 to Ln. (on, off). A simple light might be indicate with only the L instead of L1.
+- There can be more than one temperature or humidity sensor in each cellar (e.g., `T1`, `T2`).
+- There is only one door sensor and one dispenser per cellar.
 
-Each cellar can have zero or more cameras. If present they are indicated with C1 to Cn. (inside view, door view), A simple light might be indicate with only the C instead of C1.
+### Lights
+- Each cellar can have zero or more lights.
+- Indicated with `L1` to `Ln` (on/off).
+- A single light may be indicated with just `L` instead of `L1`.
 
-Each cellar can have one actuator to start the cooling in the cellar. Each actuator has an associated compressor and sometimes an air valve. 
+### Cameras
+- Each cellar can have zero or more cameras.
+- Indicated with `C1` to `Cn` (inside view, door view).
+- A single camera may be indicated with just `C` instead of `C1`.
 
-At least one cooling actuator **must** be present. Fridges with a freezer compartment might not have a cooling actuator specific to the freezer. They are designed and built so that inside the freezer compartment the temperature is below zero (C) even when the rest of the fridge is at the upper limit of the temperature regulation (no more than 8°C). Some small fridges, especially under counter models or those for camper vans and trailers, are realized in this way.
+### Cooling Actuator
+- Each cellar can have one actuator to start cooling.
+- Each actuator has an associated compressor and sometimes an air valve.
+- **At least one cooling actuator must be present** in the whole fridge.
+- Some fridges (especially small ones, under-counter, or camper models) may not have a dedicated cooling actuator for the freezer — the freezer stays below 0°C passively when the fridge section is at its upper temperature limit (≤ 8°C).
+- The actuator is on/off and turns on the associated compressor and, if present, the air valve.
+- Works with single-compressor systems as well as separate compressors for fridge/freezer.
+- Indicated with `A`. If more than one compressor exists, use `A1`, `A2`, etc.
 
-The actuator is on or off, and it turns on the associated compressor and, if present, the air valve. This setup works with systems with one compressor for the fridge and one for the freezer (combined compressor) and with separate compressors for each function.
+### Fan Actuator
+- Each cellar can have a fan actuator.
+- Indicated with `F`.
 
-It is indicated with an A. If there is more than one compressor it will be indicated as 
+---
 
-Each cellar can have an actuator for a fan. It is indicated with an F.
+## Active Defrost
 
-## HMI
-The fridge can have an interface to display status or to set operating parameters. The presence of an HMI is indicated with an H after the D or d, the number of the HMI type and a + if it has buttons.
+A cellar may have an **active defrost** system, typically found in freezer compartments and sometimes in the fridge section (especially in frost-free or no-frost models).
 
-For this project we will consider four type of HMI interfaces.
+- Active defrost is indicated with the symbol `R` (for **R**esistive heater or defrost **R**elay) inside the cellar's component list.
+- It represents a heating element or reverse-cycle valve that periodically melts frost buildup on the evaporator.
+- If the defrost system includes its own dedicated sensor (e.g., a defrost termination thermostat or temperature probe), it is indicated as `Tr` in addition to the regular `T` sensor.
+- A cellar can have at most one active defrost system.
 
-1. Simple RGB LED.
-2. LCD Matrix display
-  - with buttons
-3. LED or OLED display
-  - with buttons
-4. LED or OLED touch screen
+### Active Defrost Examples
 
+| Description | Template |
+|-------------|----------|
+| Freezer with active defrost and temperature sensor | `d[T,R,D,L,A]` |
+| Freezer with active defrost, defrost sensor, and fan | `d[T,Tr,R,D,L,A,F]` |
+| Fridge section with active defrost (less common) | `D[T,H,R,D,L,A]` |
+
+If a cellar does **not** have active defrost, the `R` symbol is simply omitted.
+
+---
+
+## HMI (Human-Machine Interface)
+
+The fridge can have an interface to display status or to set operating parameters.
+
+- Presence of an HMI is indicated with an `H` after the `D` or `d`.
+- The number after `H` indicates the HMI type (see below).
+- A `+` after the number indicates the presence of buttons.
+
+### HMI Types
+
+| Number | Type |
+|--------|------|
+| 1 | Simple RGB LED |
+| 2 | LCD Matrix display with buttons |
+| 3 | LED or OLED display with buttons |
+| 4 | LED or OLED touch screen |
+
+### HMI Examples
+
+| Description | Template |
+|-------------|----------|
+| Fridge door with HMI type 4 (touch screen) | `DH4[...]` |
+| Freezer door with HMI type 3 (OLED + buttons) | `dH3[...]` |
+| Fridge door with HMI type 2 (LCD + buttons) | `DH2+[...]` |
+
+---
+
+## Summary of Component Symbols
+
+| Symbol | Meaning |
+|--------|---------|
+| `D` / `d` | Door (fridge / freezer) |
+| `i` | Ice dispenser (after door letter) |
+| `()` | Door behind another door |
+| `T` | Temperature sensor |
+| `H` | Humidity sensor |
+| `D` | Door sensor (inside component list) |
+| `d` | Dispenser sensor (inside component list) |
+| `L` / `L1...Ln` | Lights |
+| `C` / `C1...Cn` | Cameras |
+| `A` / `A1...An` | Cooling actuator(s) |
+| `F` | Fan actuator |
+| `R` | Active defrost system |
+| `Tr` | Defrost temperature sensor |
+| `H` + number | HMI interface (after door letter) |
+| `+` | Buttons present (after HMI number) |
+
+---
+
+## Complete Template Structure
+
+DOOR_LETTER[HMI?][COMPONENT_LIST]/DOOR_LETTER[HMI?][COMPONENT_LIST],...
+
+Where:
+- `DOOR_LETTER` = `D` (fridge) or `d` (freezer), optionally with `i` for ice dispenser or `()` for behind-another-door
+- `HMI?` = optional `H` followed by a type number (1–4) and optional `+`
+- `COMPONENT_LIST` = comma-separated list of symbols from the summary above, enclosed in `[ ]`
+- Multiple doors are separated by `,` (left-to-right on same level)
+- Door groups are separated by `/` (top-to-bottom)
