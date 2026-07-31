@@ -24,8 +24,10 @@ It also adds a display. Here is the hardware used to smartify the fridge:
 ### Mode selection:
 - Home Assistant control
 - Internal logic
+
 If the mode is Home Assistant you have to implement an HA automation to turn on and off the compressor. This opens the possibility of implementing "smart" logic.
 If the mode in Internal the ESP32 handles the temperature control
+
 Internal thermostat logic:
 - Setpoint + hysteresis for fridge and freezer
 - Minimum compressor off‑time protection
