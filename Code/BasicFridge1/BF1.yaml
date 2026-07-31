@@ -3,7 +3,7 @@ substitutions:
 
 esphome:
   name: ${name}
-  comment: "BF1 Template: Dual compressor, Dallas + SHT41, camera, HMI type 2 (no buttons), power metering, HA/internal logic"
+  comment: "BF1 Template: Dual compressor, sensors, camera, HMI type 2, power metering, HA/internal logic"
   min_version: 2024.6.0
 
 esp32:
@@ -66,24 +66,27 @@ display:
     dimensions: 20x4
     address: 0x27
     lambda: |-
-      // Riga 1: Temperature
-      it.printf(0, 0, "Fridge: %.1fC  Freez: %.1fC",
+      // Riga 1: Temperature + Setpoint
+      it.printf(0, 0, "F:%.1fC(%.1f) Z:%.1fC(%.1f)",
                 id(fridge_temp).state,
-                id(freezer_temp).state);
+                id(fridge_setpoint),
+                id(freezer_temp).state,
+                id(freezer_setpoint));
 
       // Riga 2: Umidità
-      it.printf(0, 1, "Hum F: %.0f%%  Hum Z: %.0f%%",
+      it.printf(0, 1, "HumF:%.0f%% HumZ:%.0f%%",
                 id(fridge_humidity).state,
                 id(freezer_humidity).state);
 
       // Riga 3: Consumo istantaneo (W)
-      it.printf(0, 2, "P F: %.0fW  P Z: %.0fW",
+      it.printf(0, 2, "PF:%.0fW PZ:%.0fW",
                 id(fridge_compressor_power).state,
                 id(freezer_compressor_power).state);
 
       // Riga 4: Modalità operativa
       it.printf(0, 3, "Mode: %s",
                 id(compressor_mode).state.c_str());
+
 # -------------------------------------------------------
 #  CAMERA (C in fridge cellar)
 # -------------------------------------------------------
@@ -142,6 +145,7 @@ sensor:
       name: "Fridge Compressor Voltage"
     power:
       name: "Fridge Compressor Power"
+      id: fridge_compressor_power
     energy:
       name: "Fridge Compressor Energy"
     update_interval: 5s
@@ -157,12 +161,13 @@ sensor:
       name: "Freezer Compressor Voltage"
     power:
       name: "Freezer Compressor Power"
+      id: freezer_compressor_power
     energy:
       name: "Freezer Compressor Energy"
     update_interval: 5s
 
 # -------------------------------------------------------
-#  DOOR & DISPENSER SENSORS + HA STATUS
+#  DOOR SENSORS + HA STATUS
 # -------------------------------------------------------
 binary_sensor:
   - platform: gpio
@@ -178,14 +183,6 @@ binary_sensor:
     name: "Freezer Door"
     pin:
       number: GPIO12
-      mode: INPUT_PULLUP
-      inverted: true
-
-  - platform: gpio
-    id: fridge_dispenser
-    name: "Fridge Dispenser"
-    pin:
-      number: GPIO17
       mode: INPUT_PULLUP
       inverted: true
 
@@ -252,6 +249,34 @@ select:
       - "Home Assistant"
       - "Internal Logic"
     initial_option: "Internal Logic"
+
+# -------------------------------------------------------
+#  SETPOINTS REGOLABILI
+# -------------------------------------------------------
+number:
+  - platform: template
+    id: fridge_setpoint_number
+    name: "Fridge Setpoint"
+    optimistic: true
+    min_value: 1.0
+    max_value: 10.0
+    step: 0.5
+    initial_value: 4.0
+    set_action:
+      - lambda: |-
+          id(fridge_setpoint) = x;
+
+  - platform: template
+    id: freezer_setpoint_number
+    name: "Freezer Setpoint"
+    optimistic: true
+    min_value: -25.0
+    max_value: -10.0
+    step: 0.5
+    initial_value: -18.0
+    set_action:
+      - lambda: |-
+          id(freezer_setpoint) = x;
 
 # -------------------------------------------------------
 #  GLOBALS: Setpoints, hysteresis, lockouts
